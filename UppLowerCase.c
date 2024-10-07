@@ -2,6 +2,7 @@
 
 int main() {
     char ch;
+    
     printf("Enter a letter: ");
     scanf_s("%c", &ch);
 
