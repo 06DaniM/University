@@ -12,7 +12,7 @@ void ex1()
 
 int main()
 {
-	//ex1();
+	ex1();
 
 	char c1, c2;
 
