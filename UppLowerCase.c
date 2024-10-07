@@ -9,12 +9,12 @@ int main()
 
     if (ch >= 'A' && ch <= 'Z') 
     {
-        ch = ch + ('a' - 'A');
+        ch += 32;
     }
 
     else if (ch >= 'a' && ch <= 'z') 
     {
-        ch = ch - ('a' - 'A');
+        ch -= 32;
     }
 
     else 
