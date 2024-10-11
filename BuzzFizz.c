@@ -2,30 +2,29 @@
 
 int main()
 {
-    int x = 1;
+    int i;
 
-    while (x <= 99)
+    for (i = 1; i <= 99; i++)
     {
-        if (x % 3 == 0 && x % 5 == 0)
+        if (i % 3 == 0 && i % 5 == 0)
             printf("FizzBuzz, ");
-        
 
-        else if (x == 99)
+
+        else if (i == 99)
             printf("Fizz");
-        
 
-        else if (x % 3 == 0)
+
+        else if (i % 3 == 0)
             printf("Fizz, ");
-        
 
-        else if (x % 5 == 0)
+
+        else if (i % 5 == 0)
             printf("Buzz, ");
-        
-        
+
+
         else
-            printf("%d, ", x);
-        
-        x++;
+            printf("%d, ", i);
     }
+
     return 0;
 }
