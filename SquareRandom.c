@@ -3,10 +3,11 @@
 #include <time.h>
 
 #define RANDOM_RANGE(min, max) (rand() % ((max) - (min) + 1) + (min)) 
+//#define RANDOM_RANGE(min, max) (rand() % 7 + 3) 
 
 void exWithWhile(int xmin, int limit)
 {
-    int ymin = xmin; 
+    int ymin = xmin;
 
     while (ymin < limit)
     {
@@ -18,7 +19,7 @@ void exWithWhile(int xmin, int limit)
         else
         {
             printf("\n");
-            xmin = 3;  
+            xmin = 3;
             ymin++;
         }
     }
