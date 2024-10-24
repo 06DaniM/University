@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------------- */
-/*     INSERT YOUR NAME HERE // INSEREIX EL TEU NOM AQUÕ // INSERTA AQUÕ TU NOMBRE     */
+/*     INSERT YOUR NAME HERE // INSEREIX EL TEU NOM AQU√ç // INSERTA AQU√ç TU NOMBRE     */
 /* ----------------------------------------------------------------------------------- */
 
 #ifndef EX2_H
