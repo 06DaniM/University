@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------------- */
-/*     INSERT YOUR NAME HERE // INSEREIX EL TEU NOM AQUÍ // INSERTA AQUÍ TU NOMBRE     */
+/*     INSERT YOUR NAME HERE // INSEREIX EL TEU NOM AQUÃ // INSERTA AQUÃ TU NOMBRE     */
 /* ----------------------------------------------------------------------------------- */
 
 #ifndef EX3_H
@@ -10,7 +10,7 @@
 int numQuadrant(int x, int y)
 {
     if (x == 0 || y == 0) {
-        return -1; // El punto está en el origen o en uno de los ejes
+        return -1; // El punto estÃ¡ en el origen o en uno de los ejes
     }
     else if (x > 0 && y > 0) {
         return 1; // Primer cuadrante
