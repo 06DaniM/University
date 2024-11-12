@@ -75,6 +75,19 @@ int printMat4x3(int mat[4][3], int rows, int cols)
 		}
 		printf("\n");
 	}
+	printf("\n");
+}
+
+void printMat3x3(char mat[3][3], int rows, int cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			printf("%c ", mat[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 int main()
@@ -92,6 +105,7 @@ int main()
 	maxMat(mat4x3, 4, 3);
 	minMat(mat4x3, 4, 3);
 	printMat4x3(mat4x3, 4, 3);
+	printMat3x3(mat3x3, 3, 3);
 
 	return 0;
 }
