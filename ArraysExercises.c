@@ -56,6 +56,19 @@ int sameVec(int vec1[], int size1, int vec2[], int size2)
 	return 1;
 }
 
+int minVec(int vec[], int size)
+{
+	int num = 10;
+	for (int i = 0; i < size; i++)
+	{
+		if (num > vec[i])
+		{
+			num = vec[i];
+		}
+	}
+	printf("The smallest number is: %d\n", num);
+}
+
 
 int lenghtString(char str[])
 {
@@ -125,7 +138,7 @@ int main()
 	int vec1[] = { 5, 2, 3 };
 	int size1 = 3;
 	
-	int vec2[] = { 1, 20, 3 };
+	int vec2[] = { 1, -20, 3 };
 	int size2 = 3;
 
 	int vec31[] = { 3, 4, 5 };
@@ -154,6 +167,9 @@ int main()
 	printf("\n");
 
 	maxVec(vec2, size2);
+	printf("\n");
+
+	minVec(vec2, size2);
 	printf("\n");
 
 	sameVec(vec31, size31, vec32, size32);
