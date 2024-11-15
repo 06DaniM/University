@@ -61,15 +61,6 @@ void minesweeper(int matrix[9][9])
         else
             i--;
     }
-    
-    /*for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 9; j++)
-        {
-            printf("%d ", matrix[i][j]);
-        }
-        printf("\n");
-    }*/
 
     for (int i = 0; i < 9; i++)
     {
@@ -83,8 +74,9 @@ void minesweeper(int matrix[9][9])
 
     mat2(matrix2);
     printf("\n");
+    mat1(matrix);
 
-    while (mines != 0 && minesweeper == false)
+    while (minesweeper == false)
     {
         printf("Enter the X coordenate: ");
         scanf_s("%d", &coorX);
@@ -92,13 +84,13 @@ void minesweeper(int matrix[9][9])
         printf("Enter the Y coordenate: ");
         scanf_s("%d", &coorY);
 
-        if (matrix[coorY-1][coorX-1] == 0)
+        if (matrix[coorY - 1][coorX - 1] == 0)
         {
-            matrix2[coorY-1][coorX-1] = 'B';
+            matrix2[coorY - 1][coorX - 1] = 'B';
             printf("There is no mine there.\n");
         }
 
-        else if (matrix[coorY-1][coorX-1] == 1)
+        else if (matrix[coorY - 1][coorX - 1] == 1)
         {
             printf("There is a mine you lost.\n");
             mat1(matrix);
@@ -106,7 +98,7 @@ void minesweeper(int matrix[9][9])
             break;
         }
 
-        if ((matrix[coorY - 2][coorX - 2] == 1) || (matrix[coorY - 1][coorX - 2] == 1)|| (matrix[coorY][coorX - 2] == 1) || (matrix[coorY - 2][coorX - 1] == 1) ||
+        if ((matrix[coorY - 2][coorX - 2] == 1) || (matrix[coorY - 1][coorX - 2] == 1) || (matrix[coorY][coorX - 2] == 1) || (matrix[coorY - 2][coorX - 1] == 1) ||
             (matrix[coorY][coorX - 1] == 1) || (matrix[coorY - 2][coorX] == 1) || (matrix[coorY - 1][coorX] == 1) || (matrix[coorY][coorX] == 0))
         {
             printf("There is a mine near.\n");
@@ -118,32 +110,32 @@ void minesweeper(int matrix[9][9])
 
         if (res == 1)
         {
-            printf("Enter the X coordenate: \n");
+            printf("Enter the X coordenate of the mine: \n");
             scanf_s("%d", &coorX);
 
-            printf("Enter the Y coordenate: \n");
+            printf("Enter the Y coordenate of the mine: \n");
             scanf_s("%d", &coorY);
 
-            if (matrix[coorY][coorX] == 1)
+            if (matrix[coorY - 1][coorX - 1] == 1)
             {
                 printf("You are correct.\n");
-                matrix2[coorY][coorX] = 'M';
+                matrix2[coorY - 1][coorX - 1] = 'M';
                 mines--;
+                if (mines == 0)
+                {
+                    printf("Congrats, you won!!");
+                    minesweeper = true;
+                }
                 mat2(matrix2);
             }
 
-            else if (matrix[coorY][coorX] == 0)
+            else
             {
                 printf("There is no mine there, you lost.\n");
                 mat1(matrix);
                 minesweeper = true;
                 break;
             }
-        }
-
-        else if (res == 0)
-        {
-            minesweeper = false;
         }
     }
 }
