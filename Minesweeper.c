@@ -59,7 +59,7 @@ void minesweeper(int matrix[9][9])
         }
 
         else
-            i--;
+            i++;
     }
 
     for (int i = 0; i < 9; i++)
@@ -74,7 +74,6 @@ void minesweeper(int matrix[9][9])
 
     mat2(matrix2);
     printf("\n");
-    mat1(matrix);
 
     while (minesweeper == false)
     {
