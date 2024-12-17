@@ -13,8 +13,6 @@ int main() {
     {
         char c;
         char s;
-        int p1 = 0;
-        int p2 = 0;
         bool areTheSame = true;
 
         fscanf(pFile, "%c", &c);
