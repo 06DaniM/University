@@ -20,42 +20,22 @@ int main() {
         fscanf(pFile, "%c", &c);
         fscanf(pFile1, "%c", &s);
 
-        while (fscanf(pFile, "%c", &c) != EOF) 
+
+        while (feof(pFile) == 0)
         {
-            p1++;
+            fscanf(pFile, "%c", &c);
+            fscanf(pFile1, "%c", &s);
+
+            if (c != s) areTheSame = false;
         }
 
-        while (fscanf(pFile1, "%c", &s) != EOF) 
-        {
-            p2++;
-        }
-
-        if (p1 != p2) 
-        {
-            printf("Not contain the same");
-        }
-
-        else
-        {
-            while (feof(pFile) == 0)
-            {
-                fscanf(pFile, "%c", &c);
-                fscanf(pFile1, "%c", &s);
-
-                if (c == s) areTheSame = true;
-                else areTheSame = false;
-            }
-
-            if (areTheSame == true) printf("Contains the same");
-            else printf("Not contain the same");
-        }
-
-
+        if (areTheSame == true) printf("Contains the same");
+        else printf("Not contain the same");
+        
         fclose(pFile);  
     }
-    else {
-        printf("ERROR opening the file!!!!\n");
-    }
+
+    else printf("ERROR opening the file!!!!\n");
 
     return 0;
 }
