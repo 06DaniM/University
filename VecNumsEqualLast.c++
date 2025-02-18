@@ -20,6 +20,6 @@ int main()
 			}
 		}
 	}
-	cout << num3 << endl;
+	cout << num3-1 << endl;
 	return 0;
 }
