@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 
+// Ex 1
 float intercanvi_estatic(float& a, float& b) 
 {
 	float c = a;
@@ -9,9 +10,16 @@ float intercanvi_estatic(float& a, float& b)
 	return a, b;
 }
 
+// Ex 3
+int* assignatArray(const int longitud)
+{
+	int* temporal = new int[longitud]{};
+	return temporal;
+}
+
 int main()
 {
-	// ex 1
+	// Ex 1
 	float primera{ 222.0 };
 	float segona{ 333.0 };
 	float tercera;
@@ -24,11 +32,15 @@ int main()
 	
 	cout << quarta << endl;
 
-	// ex2	
+	// Ex 2	
 	int x = 5;
 	int* p = &x;
 	x = x * *p;
 	cout << p;
+
+	// Ex 3
+	const int longitud = 4;
+	assignatArray(longitud);
 	
 	return 0;
 }
