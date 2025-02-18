@@ -11,6 +11,7 @@ float intercanvi_estatic(float& a, float& b)
 
 int main()
 {
+	// ex 1
 	float primera{ 222.0 };
 	float segona{ 333.0 };
 	float tercera;
@@ -22,5 +23,12 @@ int main()
 	quarta = primera + segona;
 	
 	cout << quarta << endl;
+
+	// ex2	
+	int x = 5;
+	int* p = &x;
+	x = x * *p;
+	cout << p;
+	
 	return 0;
 }
