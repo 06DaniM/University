@@ -1,21 +1,24 @@
 #include <iostream>
 using namespace std;
 
-void swap(int &a, int &b)
-{
-    int temp = a;
-    a = b;
-    b = temp;
+void misteri(int array, int longitud) {
+    for(int i= 0; i < longitud/2; ++i) {
+        int x = (array + i);
+        array[&i] = array[&longitud -1 - i];
+        array[&longitud -1 - i] = x;
+    }
 }
-
 int main()
 {
-    int a = 3;
-    int b = 4;
-    
-    cout <<a << ""<< b << endl;
-    swap(a,b);
-    cout <<a << ""<< b << endl;
-
+    int longitud = 5;
+    int* array = (int*) (longitud, sizeof(int));
+    for(int i = 0; i < longitud; ++i) {
+        array[i] = i +1;
+    }
+    misteri(*array, longitud);
+    for (int i = 0; i < longitud; i++) {
+        cout << array[i] << " ";
+    }
+    cout << endl;
     return 0;
 }
