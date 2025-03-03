@@ -48,13 +48,13 @@ int main() {
 
 	int* resultat = combinarArraysOrdenats(arr1, longitud1, arr2, longitud2);
 
-	cout << "L'array combinat ordenat és: ";
+	cout << "L'array combinat ordenat Ã©s: ";
 	for (int i = 0; i < longitud1 + longitud2; ++i) {
 		cout << resultat[i] << " ";
 	}
 	cout << endl;
 
-	// Alliberar la memòria de l'array resultat
+	// Alliberar la memÃ²ria de l'array resultat
 	delete[] resultat;
 
 	return 0;
