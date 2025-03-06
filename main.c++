@@ -18,7 +18,6 @@ struct PowerUp {
     PowerUpType type; // Tipo de power-up
 };
 
-
 typedef struct Bullet {
     Rectangle rect;
     bool active;
@@ -45,11 +44,13 @@ const int screenWidth = 1920;
 const int screenHeight = 1080;
 int screen = 1;
 
-int maxEnemies = 5;        // Declarada como global
-int currentEnemies = 0;    // Declarada como global
+int maxEnemies = 5;
+int currentEnemies = 0;
 
-// Declaración de la función antes de main()
-void UpdateEnemy(std::vector<Bullet_Enemy> enemyBullets, Enemy& enemy, float deltaTime);
+std::vector<Bullet> bullets;
+std::vector<Bullet_Enemy> enemyBullets;
+
+void UpdateEnemy(std::vector<Bullet_Enemy>& enemyBullets, Enemy& enemy, float deltaTime);
 void SpawnEnemies(std::vector<Enemy>& enemies, float baseHeight, float baseWidth, int direction);
 
 int main(void)
@@ -63,11 +64,12 @@ int main(void)
 
 
     int currentWave = 1;
-    int totalWaves = 3;  // Número de oleadas por pantalla
+    int totalWaves = 3;  // Number of waves per screen
     float waveTimer = 0.0f;
-    float waveDelay = 10.0f; // Segundos entre oleadas
+    float waveDelay = 10.0f; // Seconds between waves
 
-    SpawnEnemies(enemies, 100.0f, -100.0f, 1); // Generar la primera oleada
+    // Generate the first wave & positions
+    SpawnEnemies(enemies, 100.0f, -100.0f, 1); // Wave 1
 
     Texture2D shipSpriteBase = LoadTexture("resources/ship/Nave Base.png");
     Texture2D shipSpriteDouble = LoadTexture("resources/ship/NAVE 2DS 64X64.png");
@@ -85,9 +87,6 @@ int main(void)
     Texture2D background = LoadTexture("resources/backgrounds/FONDO_GALAGA.png");
 
     Font font = LoadFontEx("Font/monogram.ttf", 64, 0, 0);
-
-    std::vector<Bullet> bullets;
-    std::vector<Bullet_Enemy> enemyBullets;
 
     bool doubleShot = false, shield = false, canAct = false;
     bool pause = false, gameOver = false, hasWon = false;
@@ -262,15 +261,23 @@ int main(void)
                 }
             }
 
+            // Update enemies bullets
             for (Bullet_Enemy& bullet : enemyBullets)
             {
                 if (bullet.active)
                 {
-                    bullet.rect.y -= BULLET_SPEED;
-                    if (CheckCollisionRecs(player, bullet.rect))
+                    bullet.rect.y += BULLET_SPEED;
+                    if (CheckCollisionRecs(player, bullet.rect) && !shield)
                     {
                         bullet.active = false;
                         life--;
+                        break;
+                    }
+
+                    else if (CheckCollisionRecs(player, bullet.rect) && shield)
+                    {
+                        shield = false;
+                        bullet.active = false;
                         break;
                     }
                 }
@@ -280,10 +287,20 @@ int main(void)
             enemyBullets.erase(std::remove_if(enemyBullets.begin(), enemyBullets.end(),
                 [](const Bullet_Enemy& b) { return !b.active || b.rect.y < 0; }), enemyBullets.end());
 
-            if (currentEnemies == 0 && currentWave < 3)
+            // === WAVES ===
+            if (currentWave < totalWaves)
             {
-                currentWave++;
-                SpawnEnemies(enemies, 150.0f, screenWidth, -1);
+                if (currentEnemies == 0 && currentWave == 1)
+                {
+                    currentWave++;
+                    SpawnEnemies(enemies, 150.0f, screenWidth + 100, -1); // Wave 2
+                }
+
+                if (currentEnemies == 0 && currentWave == 2)
+                {
+                    currentWave++;
+                    SpawnEnemies(enemies, 150.0f, screenWidth + 100, -1); // Wave 3
+                }
             }
 
             else if (currentEnemies == 0 && currentWave >= 3)
@@ -490,7 +507,7 @@ int main(void)
 
             else if (powerUp.active && powerUp.type == Shield)
             {
-                DrawTexture(bulletBossSprite, (int)powerUp.rect.x, (int)powerUp.rect.y, WHITE); // Cambiar al sprite del escudo cuando esté
+                DrawTexture(bulletBossSprite, (int)powerUp.rect.x, (int)powerUp.rect.y, WHITE); // Cambiar al sprite del escudo cuando esté hecho
             }
         }
 
@@ -517,7 +534,7 @@ void SpawnEnemies(std::vector<Enemy>& enemies, float baseHeight, float baseWidth
         float delay = i * 0.5f;
         float startX = baseWidth; // Position X in the wave
         float startY = baseHeight; // Position Y in the wave
-        float targetX = screenWidth / 6.0f * (i + 1);
+        float targetX = screenWidth / 6.0f * (i+0.75f);
         float targetY = baseHeight + 20.0f; // Destiny of the enemy
 
         // Enemy data
@@ -532,17 +549,17 @@ float Lerp(float a, float b, float t)
     return a + t * (b - a);
 }
 
-void UpdateEnemy(std::vector<Bullet_Enemy> enemyBullets, Enemy& enemy, float deltaTime)
+void UpdateEnemy(std::vector<Bullet_Enemy>& enemyBullets, Enemy& enemy, float deltaTime)
 {
+    float midX = screenWidth / 2.0f;
+    float midY = enemy.rect.y;
+
     enemy.entryTime += deltaTime;
     float t = enemy.entryTime;
 
     // === Fase de Entrada ===
     if (t < 1.5f)
     {
-        float midX = screenWidth / 2.0f;
-        float midY = enemy.rect.y;
-
         if (t < 0.5f)
         {
             enemy.rect.x = enemy.rect.x;
@@ -550,7 +567,7 @@ void UpdateEnemy(std::vector<Bullet_Enemy> enemyBullets, Enemy& enemy, float del
         }
         else
         {
-            float duration = 10.0f; // Duración para mover el enemigo
+            float duration = 10.0f; // Duration for moving the enemy
             float tProgress = (t - 0.5f) / duration;
             if (tProgress > 1.0f) tProgress = 1.0f;
 
@@ -567,20 +584,10 @@ void UpdateEnemy(std::vector<Bullet_Enemy> enemyBullets, Enemy& enemy, float del
         float centerX = enemy.rect.x;
         float centerY = enemy.rect.y;
 
-        // Movimiento en loop
+        // Loop movement
         enemy.rect.x = centerX + radius * enemy.loopDirection * cos(loopT * PI * 2);
         enemy.rect.y = centerY + radius * sin(loopT * PI * 2);
 
-        // Lógica de disparo: disparar balas cada cierto tiempo
-        if (KEY_H) // enemy.isAttacking && enemy.attackCooldown <= 0.0f
-        {
-            enemyBullets.push_back({ { enemy.rect.x + enemy.rect.width / 2 - 15, enemy.rect.y + enemy.rect.height / 2, 16, 12 }, true });
-            enemy.attackCooldown = 1.5f; // Resetear el tiempo de cooldown
-        }
-        else
-        {
-            enemy.attackCooldown -= deltaTime;  // Reducir el tiempo de cooldown
-        }
     }
 
     // === Fase Final ===
@@ -598,5 +605,50 @@ void UpdateEnemy(std::vector<Bullet_Enemy> enemyBullets, Enemy& enemy, float del
             enemy.rect.x = enemy.targetPosition.x;
             enemy.rect.y = enemy.targetPosition.y;
         }
+    }
+
+
+    // === NEW ENEMY MOVEMENT ===
+
+    // Definir la velocidad de movimiento (unidades por segundo)
+    //float velocity = 500.0f; // Velocidad en unidades por segundo (puedes ajustarla según el juego)
+
+    //// Calcular la distancia entre la posición actual del enemigo y el punto de destino
+    //float distX = enemy.targetPosition.x - enemy.rect.x; 
+    //float distY = enemy.targetPosition.y - enemy.rect.y;
+    //float distance = sqrt(distX * distX + distY * distY); // Total distance
+
+    //// Delta time for fluid movement
+    //// Speed per frame
+    //float moveSpeed = velocity * deltaTime;
+
+    //// Si la distancia es mayor que el movimiento en este frame, movemos al enemigo hacia su objetivo
+    //if (distance > moveSpeed)
+    //{
+    //    // Normalizar la dirección
+    //    float directionX = distX / distance;
+    //    float directionY = distY / distance;
+
+    //    // Mover al enemigo en la dirección de su objetivo
+    //    enemy.rect.x += directionX * moveSpeed;
+    //    enemy.rect.y += directionY * moveSpeed;
+    //}
+    //else
+    //{
+    //    // Si la distancia es menor que el movimiento en este frame, el enemigo ha llegado al objetivo
+    //    enemy.rect.x = enemy.targetPosition.x;
+    //    enemy.rect.y = enemy.targetPosition.y;
+    //}
+    
+    // Shoot logic
+    if (enemy.attackCooldown >= 1.5f) // enemy.isAttacking && enemy.attackCooldown >= 1.5f
+    {
+        enemyBullets.push_back({ { enemy.rect.x + enemy.rect.width / 2, enemy.rect.y + enemy.rect.height / 2, 16, 12 }, true });
+        enemy.attackCooldown = 0.0f; // Reset cooldown
+    }
+
+    else
+    {
+        enemy.attackCooldown += deltaTime;  // Reducir el tiempo de cooldown
     }
 }
