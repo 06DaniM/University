@@ -1,74 +1,113 @@
-#include <iostream>
+#include <iostream>;
 using namespace std;
+#include <vector>;
 
 class Personatge
 {
 private:
-    string nom;
-    int salut, nivel;
+	string name;
+	int vida;
+	int lvl;
 
-    void ModificarNivell()
-    {
-        nivel++;
-    }
+	bool lvlUp() {
+		cout << "lvl +1" << endl;
+		return true;
+	}
 
-    void Curar()
-    {
-        salut++;
-    }
+	bool curacion() {
+		cout << "healed" << endl;
+		return true;
+	}
 
 public:
-    string habilitat;
+	Personatge() { }
 
-    void HabilitatEspecial(string habilitat)
-    {
-        cout << habilitat;
-    }
+	Personatge(string name, int vida, int lvl) {
+		this->name = name;
+		this->vida = vida;
+		this->lvl = lvl;
+	}
+
+	int checklvl(bool condition) {
+		if (condition == true) {
+			lvlUp();
+		}
+		this->lvl++;
+		return this->lvl;
+	}
+
+	int potion(bool potion) {
+		if (potion == true) {
+			curacion();
+		}
+		this->vida = vida + 10;
+		return this->vida;
+	}
+
+	string getName() { return this->name; }
+	int getVida() { return this->vida; }
+	int getLVL() { return this->lvl; }
 };
 
-class Mago
-{
+class Mago {
 public:
-    Mago(Personatge& personatge)
-    {
-        personatge.habilitat = "Fire";
-    }
+	string habilitat = "tonteria maxima";
 
-    void Mago_Ability(Personatge& personatge)
-    {
-        cout << personatge.habilitat;
-    }
+	Mago() {}
+
+	void HabilitatEspecial() {
+		cout << "Executant " <<habilitat << endl;
+	}
+
 };
 
-class Guerrero
-{
+class Guerrer {
 public:
-    Guerrero(Personatge& personatge)
-    {
-        personatge.habilitat = "Sword";
-    }
-    void Guerrero_Ability(Personatge& personatge)
-    {
-        cout << personatge.habilitat;
-    }
+	string habilitat = "tonteria minima";
+	
+	Guerrer() {}
+	
+	void HabilitatEspecial() {
+		cout << "Executant " << habilitat << endl;
+	}
+
 };
 
-class Arquers
-{
+class Arquer {
 public:
-    Arquers(Personatge& personatge)
-    {
-        personatge.habilitat = "Arrow";
-    }
-    void Arquers_Ability(Personatge& personatge)
-    {
-        cout << personatge.habilitat;
-    }
+	string habilitat = "tonteria parcial";
+
+
+	Arquer() {}
+	
+
+	void HabilitatEspecial() {
+		cout << "Llençant " << habilitat << endl;
+	}
 };
 
-int main() 
-{
-    
+int main() {
+	
+	vector <Personatge> ps;
+	//Creacion y Print de Personaje
+	ps.push_back(Personatge("Bobo Adam", 120, 1));
+	cout << "Name: " << ps[0].getName() << endl;
+	cout << "Vida: " << ps[0].getVida() << endl;
+	cout << "Nivel: " << ps[0].getLVL() << endl;
 
-    return 0;
+	//Actualizacion de datos privados
+	cout << ps[0].checklvl(true) << endl;
+	cout << ps[0].potion(true) << endl;
+	//Comprovacion de Actualizacion
+	cout << "Vida: " << ps[0].getVida() << endl;
+	cout << "Nivel: " << ps[0].getLVL() << endl;
+	Mago m;
+	Guerrer g;
+	Arquer a;
+
+	m.HabilitatEspecial();
+	g.HabilitatEspecial();
+	a.HabilitatEspecial();
+
+	return 0;
 }
