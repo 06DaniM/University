@@ -33,16 +33,21 @@ typedef struct Enemy {
     float attackCooldown;
     Vector2 targetPosition1; // Loop position
     Vector2 targetFinalPosition; // Final position
+    float targetIdlePosition; // Idle position
     float entryTime; // Tiempo de entrada
     int index; // Índice del enemigo en la fila
     int loopDirection;
     bool enemyInitialState;
+    bool enemyLoopState;
+    bool manual;
+    bool idle;
+    bool random;
 } Enemy;
 
 typedef struct Bullet_Enemy {
     Rectangle rect;
     bool active;
-}; Bullet_Enemy;
+} Bullet_Enemy;
 
 const int screenWidth = 1920;
 const int screenHeight = 1080;
@@ -73,7 +78,7 @@ int main(void)
     float waveDelay = 10.0f; // Seconds between waves
 
     // Generate the first wave & positions
-    SpawnEnemies(enemies, 100.0f, -100.0f, 1, screenWidth/1.75f, screenHeight/2); // Wave 1
+    SpawnEnemies(enemies, 100.0f, -100.0f, 1, screenWidth / 1.5f, screenHeight / 2.5f); // Wave 1
 
     Texture2D shipSpriteBase = LoadTexture("resources/ship/Nave Base.png");
     Texture2D shipSpriteDouble = LoadTexture("resources/ship/NAVE 2DS 64X64.png");
@@ -84,7 +89,7 @@ int main(void)
 
     Texture2D doubleShotSprite = LoadTexture("resources/powerUps/DobleShot_PowerUp.png");
     Texture2D shieldSprite = LoadTexture("resources/powerUps/Shield_PowerUp.png");
-    
+
     Texture2D bulletSprite = LoadTexture("resources/bullets/Disparo_Spaceship.png");
     Texture2D bulletEnemySprite = LoadTexture("resources/bullets/Disparo_Regular_Enemy.png");
     Texture2D bulletBossSprite = LoadTexture("resources/bullets/Disparo_Boss.png");
@@ -409,10 +414,10 @@ int main(void)
         {
             if (enemy.active)
             {
-                Vector2 position = { (int)(enemy.rect.x + enemy.rect.width / 2 - enemySprite.width / 2),
-                    (int)(enemy.rect.y + enemy.rect.height / 2 - enemySprite.height / 2) };
+                Vector2 position = { (enemy.rect.x + enemy.rect.width / 2 - enemySprite.width / 2),
+                    (enemy.rect.y + enemy.rect.height / 2 - enemySprite.height / 2) };
 
-                DrawTextureEx(enemySprite, position, 0.0f, 1.0f,WHITE);
+                DrawTextureEx(enemySprite, position, 0.0f, 1.0f, WHITE);
             }
         }
 
@@ -536,17 +541,18 @@ void SpawnEnemies(std::vector<Enemy>& enemies, float baseHeight, float baseWidth
 {
     enemies.clear();
     for (int i = 0; i < maxEnemies; i++) {
-        float delay = i * 0.5f;
+        float delay = i * 0.35f; // Space between enemies
         float startX = baseWidth; // Position X in the wave
         float startY = baseHeight; // Position Y in the wave
         float targetX = targetx; // Loop X position
         float targetY = targety; // Loop Y position
-        float finaltargetX = screenWidth / 6.0f * (i+0.75f); // Final X position
+        float idletargetX = screenWidth / 6.0f * (i + 0.75f) - 200;
+        float finaltargetX = screenWidth / 6.0f * (i + 0.75f); // Final X position
         float finaltargetY = baseHeight + 20.0f; // Final Y position
 
         // Enemy data
         enemies.push_back({ { startX, startY, 112, 84 }, true, false, 3.0f, // Enemys collision
-                            (float)GetRandomValue(2, 5), { targetX, targetY }, { finaltargetX, finaltargetY }, -delay, i, direction, true });
+                            (float)GetRandomValue(2, 5), { targetX, targetY }, { finaltargetX, finaltargetY }, idletargetX,-delay, i, direction, true, false, true, false, false });
     }
     currentEnemies = maxEnemies; // Change to sum when more waves will be added
 }
@@ -562,70 +568,137 @@ void UpdateEnemy(std::vector<Bullet_Enemy>& enemyBullets, Enemy& enemy, float de
     float midY = enemy.rect.y;
 
     enemy.entryTime += deltaTime;
-    float t = enemy.entryTime;
 
     // === NEW ENEMY MOVEMENT ===
 
     // El retraso se calcula dependiendo del índice del enemigo
-    float delayTime = enemy.index * 0.5f; // Por ejemplo, 0.5 segundos de retraso por cada enemigo
+    float delayTime = 0.0f; // Por ejemplo, 0.5 segundos de retraso por cada enemigo
 
     // Enemy start de movement with a delay 
 
     if (enemy.entryTime >= delayTime)
     {
         // === NEW ENEMY MOVEMENT ===
-        float velocity = 500.0f; // Velocidad de movimiento
 
-        // Calcular la distancia entre la posición actual y el objetivo
-        float distX = enemy.targetPosition1.x - enemy.rect.x;
-        float distY = enemy.targetPosition1.y - enemy.rect.y;
-        float distance1 = sqrt(distX * distX + distY * distY); // Distancia total al objetivo
+        // Calcular la posición circular
+        float radius = 150.0f;  // Radio del círculo
+        float centerX = enemy.targetPosition1.x; // Centro de la órbita
+        float centerY = enemy.targetPosition1.y + radius;
 
-        // === MOVIMIENTO HASTA EL OBJETIVO ===
-        float moveSpeed = velocity * deltaTime;
-
-        if (enemy.enemyInitialState)
+        if (enemy.manual)
         {
-            if (distance1 > moveSpeed)
+
+            // Incrementar 't' para el movimiento circular
+            float velocity = 500.0f; // Velocidad de movimiento
+            float moveSpeed = velocity * deltaTime;
+            // === 1ST OBJECTIVE ===
+            if (enemy.enemyInitialState)
+            {
+                // Calcular la distancia entre la posición actual y el objetivo
+                float distX = enemy.targetPosition1.x - enemy.rect.x;
+                float distY = enemy.targetPosition1.y - enemy.rect.y;
+
+                float distance = sqrt(distX * distX + distY * distY); // Distancia total al objetivo
+
+                enemy.enemyLoopState = false;
+                if (distance > moveSpeed)
+                {
+                    // Normalizar la dirección
+                    float directionX = distX / distance;
+                    float directionY = distY / distance;
+
+                    // Mover al enemigo hacia el objetivo
+                    enemy.rect.x += directionX * moveSpeed;
+                    enemy.rect.y += directionY * moveSpeed;
+                }
+
+                else
+                {
+                    enemy.enemyInitialState = false;
+                    enemy.enemyLoopState = true;
+                }
+            }
+
+            // CORREGIR PUNTO DE INICIO DEL LOOP
+
+            // === LOOP MOVEMENT ===
+            else if (!enemy.enemyInitialState && enemy.enemyLoopState)
+            {
+                float t = enemy.entryTime;
+                float loopT = t * 0.5f;  // Controlar la velocidad angular (ajusta este valor si es necesario)
+
+                enemy.rect.x -= cos(loopT * PI * 2) * 5; // Movimiento en X
+                enemy.rect.y -= sin(loopT * PI * 2) * 5; // Movimiento en Y
+
+                if (enemy.entryTime > 4 + .5f)
+                {
+                    enemy.enemyLoopState = false;
+                    cout << enemy.enemyLoopState;
+                }
+            }
+
+            // === FINAL STATE ==
+            else if (!enemy.enemyInitialState && !enemy.enemyLoopState)
+            {
+                float distX = enemy.targetFinalPosition.x - enemy.rect.x;
+                float distY = enemy.targetFinalPosition.y - enemy.rect.y;
+
+                float distance = sqrt(distX * distX + distY * distY); // Distancia total al objetivo
+
+                if (distance > moveSpeed)
+                {
+                    // Normalizar la dirección
+                    float directionX = distX / distance;
+                    float directionY = distY / distance;
+
+                    // Mover al enemigo hacia el objetivo
+                    enemy.rect.x += directionX * moveSpeed;
+                    enemy.rect.y += directionY * moveSpeed;
+                }
+
+                else
+                {
+                    enemy.rect.x = enemy.targetFinalPosition.x;
+                    enemy.rect.y = enemy.targetFinalPosition.y;
+
+                    enemy.manual = false;
+                    enemy.idle = true;
+                }
+            }
+        }
+
+        // === RANDOM STATE
+        
+        else if (enemy.idle && !enemy.random)
+        {
+            // Incrementar 't' para el movimiento circular
+            float velocity = 200.0f; // Velocidad de movimiento
+            float moveSpeed = velocity * deltaTime;
+
+            float distX = enemy.targetIdlePosition - enemy.rect.x;
+
+            float distance = sqrt(distX * distX); // Distancia total al objetivo
+
+            if (distance > moveSpeed)
             {
                 // Normalizar la dirección
-                float directionX = distX / distance1;
-                float directionY = distY / distance1;
+                float directionX = distX / distance;
 
                 // Mover al enemigo hacia el objetivo
                 enemy.rect.x += directionX * moveSpeed;
-                enemy.rect.y += directionY * moveSpeed;
             }
 
             else
             {
-                printf("Cambiando Rect ");
-                // El enemigo ha llegado al objetivo
-                enemy.rect.x = enemy.targetPosition1.x;
-                enemy.rect.y = enemy.targetPosition1.y;
-
-                enemy.enemyInitialState = false;
-                cout << "Valor despues  es: " << enemy.enemyInitialState;
+                enemy.rect.x = enemy.targetFinalPosition.x;
             }
         }
 
-        // === MOVIMIENTO CIRCULAR ===
-        if (!enemy.enemyInitialState)
+        else if (enemy.random)
         {
-            // Calcular la posición circular
-            float radius = 100.0f;  // Radio del círculo
-            float centerX = enemy.targetPosition1.x; // Centro de la órbita
-            float centerY = enemy.targetPosition1.y;
 
-            // Incrementar 't' para el movimiento circular
-            float loopT = t * 0.5f;  // Controlar la velocidad angular (ajusta este valor si es necesario)
-
-            // Movimiento circular (solo en círculo, no hacia el centro)
-            enemy.rect.x = centerX + radius * cos(loopT * PI * 2); // Movimiento en X
-            enemy.rect.y = centerY + radius * sin(loopT * PI * 2); // Movimiento en Y
         }
     }
-
 
     // Lógica de disparo
     if (enemy.attackCooldown >= 1.5f) // Si está listo para atacar
@@ -639,53 +712,3 @@ void UpdateEnemy(std::vector<Bullet_Enemy>& enemyBullets, Enemy& enemy, float de
         enemy.attackCooldown += deltaTime;  // Reducir el tiempo de cooldown
     }
 }
-
-//// === Fase de Entrada ===
-    //if (t < 1.5f)
-    //{
-    //    if (t < 0.5f)
-    //    {
-    //        enemy.rect.x = enemy.rect.x;
-    //        enemy.rect.y = enemy.rect.y;
-    //    }
-    //    else
-    //    {
-    //        float duration = 10.0f; // Duration for moving the enemy
-    //        float tProgress = (t - 0.5f) / duration;
-    //        if (tProgress > 1.0f) tProgress = 1.0f;
-
-    //        enemy.rect.x = Lerp(enemy.rect.x, midX, tProgress);
-    //        enemy.rect.y = Lerp(enemy.rect.y, midY, tProgress);
-    //    }
-    //}
-
-    //// === Fase de Looping ===
-    //else if (t < 3.0f)
-    //{
-    //    float loopT = (t - 1.5f) / 1.5f;
-    //    float radius = 4.0f;
-    //    float centerX = enemy.rect.x;
-    //    float centerY = enemy.rect.y;
-
-    //    // Loop movement
-    //    enemy.rect.x = centerX + radius * enemy.loopDirection * cos(loopT * PI * 2);
-    //    enemy.rect.y = centerY + radius * sin(loopT * PI * 2);
-
-    //}
-
-    //// === Fase Final ===
-    //else
-    //{
-    //    float finalT = (t - 3.0f) / 1.5f;
-    //    float startX = enemy.rect.x;
-    //    float startY = enemy.rect.y;
-
-    //    enemy.rect.x = Lerp(startX, enemy.targetFinalPosition.x, finalT);
-    //    enemy.rect.y = Lerp(startY, enemy.targetFinalPosition.y, finalT);
-
-    //    if (finalT >= 1.0f)
-    //    {
-    //        enemy.rect.x = enemy.targetFinalPosition.x;
-    //        enemy.rect.y = enemy.targetFinalPosition.y;
-    //    }
-    //}
