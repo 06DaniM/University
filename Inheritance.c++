@@ -26,6 +26,7 @@ int main()
 {
     Point1D p1;
     p1.setX(1);
+    cout << p1.x << endl;
 
     Point2D p2;
     p2.setX(2); p2.setY(2);
